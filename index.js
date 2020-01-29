@@ -1,12 +1,19 @@
-const { VK } = require('vk-io');
-const requst = require('request');
+const { VK } = require('vk-io'); //
+const requst = require('request'); // Подключение библиотеки реквест, делает https
 const moment = require('moment');
+const config = { // Получаем из окружения токен и линк вебхука(типа безопасность)
+    token: process.env.TOKEN, 
+    webhook: process.env.WEBHOOKLINK
+};
 
-const vk = new VK({
-    token: '5e5497efc36baa34bd7403c7efd3f70db7a80f3b149582c29ba57cd94318c64f7ff9b4c460dfc88d0ec83'
+
+const vk = new VK({ // Инициализация класса вк с токеном
+    token: config.token
 });
-
-const bot = async ctx => {
+/*
+* ctx
+ */
+const bot = async ctx => { // Функция обработки данных и отправки объекта
     const userdata = await vk.api.users.get({user_ids: ctx.senderId, fields: "photo_50"});
     //console.log(userdata[0].first_name );
     const data = ctx.message.date;
@@ -35,16 +42,13 @@ const bot = async ctx => {
             }
         ]
     }
-}
-vk.updates.on('message', async ctx => {
+};
+vk.updates.on('message', async ctx => { //Мидлварь, прослушивающий сообщения и отправляющий на вебхук запрос
     if(ctx.isFromGroup || ctx.isOutbox || !ctx.is('message')) return;
     if(!ctx.isChat) {
-       // console.log(ctx.peerId);
-        //await fetch("https://discordapp.com/api/webhooks/671808825371787294/35_4qYn087067gZ7Ds1HDlf_iBlzFvfRmw6ZL_MAvmBPrxUF7p30lnMLlxeAqLgoyG0o", { method: "POST", headers: {'Content-Type': 'application/json' }, body: JSON.stringify(bot)} )
-        //.then(resp => console.log(resp))
         let req = requst({
                 method: "POST",
-                uri: 'https://discordapp.com/api/webhooks/671808825371787294/35_4qYn087067gZ7Ds1HDlf_iBlzFvfRmw6ZL_MAvmBPrxUF7p30lnMLlxeAqLgoyG0o',
+                uri: config.webhook,
                 body: await bot(ctx),
                 json: true
             },
@@ -58,5 +62,5 @@ vk.updates.on('message', async ctx => {
     });
 
 
-vk.updates.start()
+vk.updates.start() //Запуск "бота"
     .then(() => console.log('Bot has been started'));
