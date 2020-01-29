@@ -1,5 +1,5 @@
-const { VK } = require('vk-io'); //
-const requst = require('request'); // Подключение библиотеки реквест, делает https
+const { VK } = require('vk-io'); // либа вк 
+const requst = require('request'); // Подключение библиотеки реквест, делает http-запросы
 const moment = require('moment');
 const config = { // Получаем из окружения токен и линк вебхука(типа безопасность)
     token: process.env.TOKEN, 
